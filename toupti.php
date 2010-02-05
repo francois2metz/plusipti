@@ -158,7 +158,7 @@ class Toupti
             $controller = new $controller_name();
             if(method_exists($controller, $method_name))
             {
-                if($controller->isAuthorized($method_name, User::get_current_user()))
+                if($controller->isAuthorized($method_name))
                 {
                     return $controller->$method_name();
                 }
