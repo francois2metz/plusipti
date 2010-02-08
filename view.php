@@ -95,7 +95,8 @@ class View
         {
             $this->tpl = $tpl;
         }
-        $this->smarty->display($this->tpl);
+        if($this->tpl != "")
+            $this->smarty->display($this->tpl);
     }
 
     public function fetch($tpl = null)
@@ -103,6 +104,10 @@ class View
         if(!is_null($tpl))
         {
             $this->tpl = $tpl;
+        }
+        if($this->tpl == '')
+        {
+            return;
         }
         return $this->smarty->fetch($this->tpl);
     }
