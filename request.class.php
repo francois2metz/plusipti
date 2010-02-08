@@ -23,9 +23,10 @@ class RequestMapper {
 
     private $possibleRequestMethods = array('GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'CONNECT');
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->accept = $this->parseAcceptHeaders($_SERVER['HTTP_ACCEPT']);
+        $this->accept = $this->parseAcceptHeaders(isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL);
         $this->headers = apache_request_headers();
         $url = $_SERVER['QUERY_STRING'];
         $this->original_uri = $_SERVER['REQUEST_URI'];
@@ -102,7 +103,7 @@ class RequestMapper {
         );
 
         $accept = array();
-        $headers=explode(',', $accept_header);
+        $headers = explode(',', $accept_header);
         foreach ($headers as $header){
             list($mime, $q) =  strpos($header,';q=') ? explode(';q=', $header): array($header,'1'); // As per http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html default q value is 1
             $accept[$mime] = ($q === null)? 1 : $q;
