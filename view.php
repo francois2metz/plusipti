@@ -6,15 +6,12 @@
 class View
 {
 
-    protected static $conf = array(
-        'template_dir' => '',
-        'compile_dir' => '',
-        'cache_dir' => '',
-        'config_dir' => '',
-        'plugins_dir' => ''
-    );
+    protected static $view_class = NULL;
 
-    public $smarty = null;
+    protected $view_object = NULL;
+
+    protected static $conf = array(
+    );
 
     public $_js = array();
 
@@ -25,28 +22,25 @@ class View
         self::$conf = $conf;
     }
 
-    function __construct($tpl = '', $params = array())
+    public static function useLib($lib)
     {
-        $this->smarty = new Smarty();
-        $this->smarty->template_dir = self::$conf['template_dir'];
-        $this->smarty->compile_dir = self::$conf['compile_dir'];
-        $this->smarty->cache_dir = self::$conf['cache_dir'];
-        $this->smarty->config_dir = self::$conf['config_dir'];
-        $this->smarty->plugins_dir []= self::$conf['plugins_dir'];
-
-        $this->tpl = $tpl;
-        $this->params =  $params;
-        $this->assign('params', $this->params);
+        $class_name = ucfirst(strtolower($lib)).'View';
+        if(!class_exists($class_name)) throw new TouptiException(sprintf("The %s view adpator could not be loaded", $lib));
+        self::$view_class = $class_name;
     }
 
-    public function assign($key, $value)
+    public function __construct($tpl = '', $params = array())
     {
-        if($value instanceof View)
-        {
-            $this->notify($value->getNotifs());
-            $value = $value->fetch();
-        }
-        $this->smarty->assign($key, $value);
+        $view_class = self::$view_class;
+        
+        call_user_func_array(array($view_class, 'conf'), array(self::$conf));
+        $this->view_object = new $view_class($tpl, $params);
+    }
+
+    public function __call($name, $arguments)
+    {
+        if(is_null($this->view_object)) throw TouptiException(sprintf("Could not call %s either on View nor on a Lib"));
+        return $this->view_object->$name($arguments);
     }
 
     /**
@@ -88,28 +82,4 @@ class View
         $args = func_get_args();
         $this->_js = array_merge($this->_js, $args);
     }
-
-    public function display($tpl = null)
-    {
-        if(!is_null($tpl))
-        {
-            $this->tpl = $tpl;
-        }
-        if($this->tpl != "")
-            $this->smarty->display($this->tpl);
-    }
-
-    public function fetch($tpl = null)
-    {
-        if(!is_null($tpl))
-        {
-            $this->tpl = $tpl;
-        }
-        if($this->tpl == '')
-        {
-            return;
-        }
-        return $this->smarty->fetch($this->tpl);
-    }
-
 }
