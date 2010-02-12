@@ -85,7 +85,7 @@ class Controller {
      *
      * @return Boolean
      */
-    public function isAuthorized($method_name, User $user = NULL)
+    public function isAuthorized($method_name)
     {
         return false;
     }
