@@ -25,22 +25,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+class TouptiException extends Exception {}
+
 /**
  * Toupti: yet another micro-framework made out of PHP.
- *
+ * @package Toupti
  * @author  Arnaud Berthomier <oz@cyprio.net>
  */
 class Toupti
 {
     /**
-     * Application routes config.
-     */
-    public $routes = array();
-
-    /**
      * Application views templates config.
      */
     public $template_path = 'template';
+
+    /**
+     * Current config
+     */
+    public $conf = null;
 
     /**
      * Parameters from _GET, _POST, and defined routes.
@@ -48,39 +50,68 @@ class Toupti
     protected $params = array();
 
     /**
+     * Request info
+     */
+    public $request = null;
+
+    /**
      * The action we'll want to run...
      */
-    protected $action = null;
+    public $action = null;
+
+    /**
+     * The methods chains to complete the action.
+     */
+    public $method = null;
 
     /**
      * Routing setup
      */
-    private $_routes = array();
+    private $route = null;
 
     /**
      * Internal template path
      */
     private $_template_path = null;
 
+    private static $_instance = null;
+
     /**
      * Toupti constructor
      */
-    public function __construct()
+    private function __construct($conf)
     {
-        // So we know where we are...
-        $this->app_root = dirname(__FILE__) . '/..';
 
-        // Check template path
-        $this->_template_path = $this->app_root . '/' . $this->template_path;
-        if ( ! file_exists($this->_template_path) ||
-             ! is_dir($this->_template_path) )
-        {
-            throw new Exception("Invalid template path", true);
-        }
+        // So we know where we are...
+        /**
+         * shouldn't we give this as an optionnal parameter ?
+         */
+        $this->app_root = dirname(__FILE__) .'/../..';
+
+        $this->conf = $conf;
+
+        $this->setup_request();
 
         // Read user routes, and set-up internal dispatcher
-        $this->setup_routes();
+        $this->setup_route();
     }
+
+    /**
+     * get instance of toupti
+     * @param $conf
+     */
+    public static function instance($conf = null)
+    {
+        if(is_null(self::$_instance))
+            self::$_instance = new self($conf);
+        return self::$_instance;
+    }
+
+    public function get_params()
+    {
+        return $this->params;
+    }
+
 
     /**
      * Dispatch browser query to the appropriate action.
@@ -90,30 +121,24 @@ class Toupti
     public function run()
     {
         // Find an action for the query, and set params accordingly.
-        list($action, $params) = $this->find_route();
+        list($action, $method, $params) = $this->route->find_route();
 
         // Update ourself
         $this->action = $action;
+        $this->method = $method;
 
         // Merge route params with POST/GET values
-        $params = array_merge($params, $_POST, $_GET);
+        $params = array_merge($params, $_POST, $_GET); // FIXME Possible CSRF attacks here
         $this->params = $params;
 
         // Dispatch the routed action !
-        if ( is_callable(array($this, $action)) )
-        {
-            return $this->call_action($action, $params);
+        if (isset($action) && isset($method)) {
+            $controller = ucfirst($action)."Controller";
+            return $this->call_action($controller, $method, $params);
+        } else {
+            throw new TouptiException($_SERVER['REQUEST_URI'], 404);
         }
 
-        // Uh oh...
-        if ( method_exists($this, 'error_404') )
-        {
-            return $this->error_404($action);
-        }
-
-        // I tried hard, but nothing worked..
-        throw new Exception("Sorry, no appropriate action was found.  ".
-                            "Furthermore, the 404 handler is not set. ");
     }
 
     /**
@@ -126,344 +151,59 @@ class Toupti
      * @param  array    Request parameters
      * @return mixed    User-defined action's return value
      */
-    private function call_action($action, $params)
+    private function call_action($controller_name, $method_name, $params)
     {
-        $return_value = null;
-        $callables = array( "before_filter",
-                            "before_$action",
-                            $action,
-                            "after_$action",
-                            "after_filter"
-        );
-
-        foreach ( $callables as $callable )
+        if($controller_name != 'Controller' && class_exists($controller_name, true))
         {
-            if ( $calable == $action )
+            $controller = new $controller_name();
+            if(method_exists($controller, $method_name))
             {
-                $return_value = $this->$callable($params);
-            }
-            elseif ( is_callable(array($this, $callable)) )
-            {
-                $this->$callable($params);
+                if($controller->isAuthorized($method_name, User::get_current_user()))
+                {
+                    return $controller->$method_name();
+                }
+                else
+                {
+                    throw new TouptiException('access_not_allowed', 403);
+                }
+            } else {
+                throw new TouptiException('Route error '. $method_name, 404);
             }
         }
-        return $return_value;
+        Logs::info('exit call_action without return');
     }
 
-    /**
-     * Get caller function name from a PHP debug backtrace
-     * @param  mixed    $backtrace  A PHP debug_backtrace() return value
-     * @return string   Caller function name from backtrace
-     * @return null     null if no function is found in $backtrace
-     */
-    private function get_template_from_backtrace($backtrace = null)
-    {
-        if ( is_array($backtrace) &&
-             isset($backtrace[1]) &&
-             !empty($backtrace[1]['function']) )
-        {
-            return $backtrace[1]['function'];
-        }
-        return null;
-    }
-
-    /**
-     * Verifiy wether a string is a valid template or not.
-     * @param  string   filename
-     * @return boolean  true if $file is an exising template file
-     */
-    private function is_template($file = null)
-    {
-        if ( null === $file )
-            return false;
-        return file_exists($this->_template_path . '/' . $file);
-    }
-    
     /**
      * Redirect to another path, and stops un
      * @param  string    $path          Redirects to $path
      * @param  boolean   $we_are_done   Stops PHP if true (defaults to true)
      * @return void
      */
-    protected function redirect_to($path = '', $we_are_done = true)
+    public function redirect_to($path = '', $we_are_done = true)
     {
         header("Location: $path");
         if ( $we_are_done )
             exit(0);
     }
 
-    /**
-     * Render text, or template.
-     *
-     * FIXME Must think about how to do rendering cleanly :)
-     * 
-     * $this->render(array('file' => 'template.haml'));
-     *    should fail if template.haml is missing
-     *
-     * $this->render('template.haml');
-     *    should show 'template.haml' text if template is missing or render 'template.haml' if it is found
-     *
-     * $this->render($my_object->to_json());
-     *    should show JSON representation of $my_object
-     *
-     */
-    protected function render($args = null)
+    private function setup_request()
     {
-        $opts = array();
-        $explicit_template = false;
-        $guessed_template = true;
-
-        // Try to render string
-        if ( is_string($args) )
-        {
-            if ( $this->is_template($args) )
-                return $this->render_file($this->_template_path . '/' . $args);
-
-            return $this->render_raw($args);
-        }
-
-        /*
-         * Try to render a template file:
-         * If no args were passed ? Try to guess a template name
-         */
-        $guessed_file = $this->get_template_from_backtrace(debug_backtrace());
-        if ( is_null($args) && $this->is_template($guessed_file) )
-        {
-            return $this->render_file($guessed_file);
-        }
-
-        /*
-         * if $args is an array, then try to render with more
-         * options, and use $args as a simple store for interpolated
-         * template values.
-         */
-        if ( is_array($args) )
-        {
-            // Explicit template name
-            if ( isset($args['file']) )
-            {
-                if ( ! $this->is_template($args['file']) )
-                    throw new Exception("Required template (" .
-                        $args['file'] . ") is missing in action " .
-                        $guessed_file, true);
-
-                $file = $this->_template_path . '/' . $args['file'];
-                return $this->render_file($file, $args);
-            }
-            
-            // No explicit template name, use guessed name
-            if ( ! $this->is_template($guessed_file) )
-                throw new Exception("Required template is missing in action " .
-                    $guessed_file, true);
-
-            return $this->render_file($this->_template_path . '/' . $guessed_file, $args);
-        }
-        throw new Exception("Required template is missing in action " . $guessed_file, true);
+        // Parsing Request.
+        $this->request = new RequestMapper();
     }
 
-    /**
-     * Render file.
-     * @param  string   $filename   Name of the file to render
-     * @param  array    $bindings   User bound variables
-     * @return void
-     */
-    protected function render_file($filename, $bindings = array())
+    private function setup_route()
     {
-        ob_start();
-        $v = $bindings;
-        require $filename;
-        ob_end_flush();
-    }
-
-    /**
-     * Render raw text
-     */
-    protected function render_raw($text, $format = 'text/plain')
-    {
-        echo $text;
-    }
-
-    /**
-     * Setup default routes unless user defined them himself,
-     * then add this routes to the dispatcher.
-     */
-    private function setup_routes()
-    {
-        // Setuip routing scheme
-        if ( empty($this->routes) )
+        $routes_file = $this->app_root . '/conf/routes.php';
+        if (file_exists($routes_file))
         {
-            $this->routes = array('' => 'index', ':action' => ':action');
+            include $routes_file;
         }
-
-        // Feed the dispatcher
-        foreach ( $this->routes as $path => $scheme )
+        else
         {
-            $this->add_route($path, $scheme);
+            throw new Exception('No route defined. Please create '. $routes_file);
         }
-    }
-
-    /**
-     * Add a new route to the internal dispatcher.
-     *
-     * @param  String  $path    Route path : a key from the user's routes
-     * @param  mixed   $scheme  Which action to take for this $path
-     * @return Void
-     */
-    private function add_route($path, $scheme)
-    {
-        $scheme_array = array();
-        $route = array('path'   => $path,
-                       'rx'     => '',
-                       'action' => null);
-
-        // Scheme can be either a string, or an associative array.
-        $scheme_array = is_array($scheme) ? $scheme : array('action' => $scheme);
-
-        if ( empty($scheme_array['action']) )
-        {
-            throw new Exception('Invalid route for path: ' . $path, true);
-        }
-
-        // Escape path for rx (XXX use preg_quote ?)
-        $rx = str_replace('/', '\/', $path);
-        
-        // named path
-        if ( strstr($path, ':') )
-        {
-            $matches = null;
-
-            if ( preg_match_all('/:\w+/', $rx, $matches) )
-            {
-                foreach ( $matches[0] as $match )
-                {
-                    $group = isset($scheme_array[$match]) ? $scheme_array[$match] : '\w+';
-                    $rx = preg_replace('/'.$match.'/', '('.$group.')', $rx);
-                }
-            }
-        }
-
-        // splat path
-        if ( strstr($path, '*') )
-        {
-            $matches = null;
-
-            if ( preg_match_all('/\*/', $rx, $matches) )
-            {
-                $rx = str_replace('*', '(.*)', $rx);
-            }
-        }
-        $route['rx'] = '\/' . $rx . '\/?';
-        $route['action'] = $scheme_array['action'];
-
-        // Add new route
-        $this->_routes []= $route;
-    }
-
-    /**
-     * Try to map browser request to one of the defined routes
-     *
-     * @return  Array   [0] => 'action name', [1] => array( params... )
-     */
-    private function find_route()
-    {
-        list($action, $params) = array(null, array());
-
-        // Get the query string without the eventual GET parameters passed.
-        $query = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-        if ( $offset = strpos($query, '?') )
-        {
-            $query = substr($query, 0, $offset);
-        }
-
-        // Try each route
-        foreach ( $this->_routes as $route )
-        {
-            $rx = '/^' . $route['rx'] . '$/';
-            $matches = array();
-
-            // Found a match ?
-            if ( preg_match($rx, $query, $matches) )
-            {
-                $params = array();
-
-                if ( count($matches) == 1 )
-                {
-                    $action = $route['action'];
-                }
-                else
-                {
-                    $params = $this->get_route_params($matches, $route);
-                    $action = $params['action'];
-                    unset($params['action']);     // don't pollute $params
-                }
-                break;
-            }
-        }
-        return array($action, $params);
-    }
-
-    /**
-     * Extract params from the request with the corresponding path matches
-     *
-     * @param   Array    $matches    preg_match $match array
-     * @param   Array    $route      corresponding route array
-     * @return  Array    Hash of request values, with param names as keys.
-     */
-    private function get_route_params($matches, $route)
-    {
-        $params      = array();
-        $path_parts  = array();
-        $param_count = 0;
-        $path_array  = explode('/', $route['path']);
-
-        // Handle each route modifier...
-        foreach ( $path_array as $param_name )
-        {
-            // Handle splat parameters (regexps like '.*')
-            if ( substr($param_name, 0, 1) == '*' )
-            {
-                ++$param_count;
-                if ( ! isset($params['splat']) ) $params['splat'] = array();
-                $params['splat'] []= $matches[$param_count];
-                continue;
-            }
-
-            // Don't treat non-parameters as parameters
-            if ( substr($param_name, 0, 1) != ":" )
-            {
-                $path_parts []= $param_name;
-                continue;
-            }
-
-            // Extract param value
-            ++$param_count;
-            if ( isset($matches[$param_count]) )
-            {
-                $name = substr($param_name, 1, strlen($param_name));
-                $params[$name] = $matches[$param_count];
-            }
-        }
-
-        if ( !array_key_exists('action', $params) )
-        {            
-            // This permits the value of a :named_match to be the routed action
-            if ( $route['action'][0] == ':' )
-            {
-                $key = substr($route['action'], 1, strlen($route['action']));
-
-                if ( array_key_exists($key, $params) )
-                    $params['action'] = $params[$key];
-            }
-
-            /*
-             * Check for an explicit action-name in route, if
-             * no :action parameter was found inside the route rx.
-             */
-            if ( empty($params['action']) )
-            {
-                $params['action'] = $route['action'];
-            }
-        }
-        return $params;
+        $this->route = HighwayToHeaven::instance();
+        $this->route->setRequest($this->request);
     }
 }
