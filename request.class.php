@@ -3,10 +3,8 @@
 /**
  * @package Toupti
  */
-class RequestMapper {
-
-    public $url;
-    public $params;
+class RequestMapper 
+{
     public $method;
     public $accept;
     public $original_uri;
@@ -25,10 +23,9 @@ class RequestMapper {
 
     public function __construct()
     {
-        $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->accept = $this->parseAcceptHeaders(isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL);
-        $this->headers = apache_request_headers();
-        $url = $_SERVER['QUERY_STRING'];
+        $this->method       = $_SERVER['REQUEST_METHOD'];
+        $this->accept       = $this->parseAcceptHeaders(isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL);
+        $this->headers      = apache_request_headers();
         $this->original_uri = $_SERVER['REQUEST_URI'];
         $this->setRequestMethod();
     }
@@ -46,8 +43,7 @@ class RequestMapper {
         return
             "url = [{$this->url}]\n".
             "method = [{$this->method}]\n".
-            "accept = [{$this->accept}]\n".
-            "params = [{$this->params}]\n";
+            "accept = [{$this->accept}]\n";
     }
 
     /**
@@ -88,12 +84,12 @@ class RequestMapper {
         }
     }
 
-    function isXHR()
+    public function isXHR()
     {
         return array_key_exists('X-Requested-With', $this->headers) ? $this->headers['X-Requested-With'] == 'XMLHttpRequest' : false;
     }
 
-    function parseAcceptHeaders($accept_header, $default="text/html"){
+    private function parseAcceptHeaders($accept_header, $default="text/html"){
         //@fixme: is formats complet ?
         $formats = array(
             'text/html' => 'html',
