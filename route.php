@@ -17,6 +17,11 @@ class HighwayToHeaven
     {
     }
 
+    public static function destroy()
+    {
+        HighwayToHeaven::$instance = NULL;
+    }
+
     public static function instance()
     {
         if(is_null(HighwayToHeaven::$instance))
@@ -140,7 +145,7 @@ class HighwayToHeaven
                 $params = array();
                 $action = $route['controller'];
                 $method = $route['action'];
-                Logs::debug("matched: " . $rx . " controller: " . $action . " action: " . $method);
+                // Logs::debug("matched: " . $rx . " controller: " . $action . " action: " . $method);
                 if ( count($matches) > 1 ) {
                     $params = $this->get_route_params($matches, $route);
                     unset($params['controller']);     // don't pollute $params
