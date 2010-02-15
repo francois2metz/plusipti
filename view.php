@@ -19,12 +19,18 @@ class View
         self::$conf = $conf;
     }
 
+    public function reset()
+    {
+        self::$view_class = NULL;
+        self::$conf = NULL;
+    }
+
     public static function useLib($lib)
     {
         $class_name = ucfirst(strtolower($lib)).'View';
         if (!class_exists($class_name)) 
         {
-            throw new TouptiException(sprintf("The %s view adpator could not be loaded", $lib));
+            throw new TouptiException(sprintf("The %s view adaptor could not be loaded, class name %s", $lib, $class_name));
         }
         self::$view_class = $class_name;
     }
@@ -34,7 +40,7 @@ class View
         $view_class = self::$view_class;
         if (is_null($view_class))
         { 
-            throw TouptiException("no adaptor set");
+            throw new TouptiException("no adaptor set");
         }
         call_user_func_array(array($view_class, 'conf'), array(self::$conf));
         $this->view_object = new $view_class($tpl, $params);
@@ -42,9 +48,9 @@ class View
 
     public function __call($name, $arguments)
     {
-        if (is_null($this->view_object))
+        if (is_null($this->view_object) || !method_exists($this->view_object, $name))
         { 
-            throw TouptiException(sprintf("Could not call %s either on View nor on a Lib", $name));
+            throw new TouptiException(sprintf("Could not call %s either on View nor on a Lib", $name));
         }
         return call_user_func_array(array($this->view_object, $name), $arguments);
     }
