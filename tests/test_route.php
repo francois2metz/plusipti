@@ -1,8 +1,5 @@
 <?php
 
-require_once('simpletest/autorun.php');
-require_once('../route.php');
-
 class TestRoute extends UnitTestCase
 {
     public function setUp()
