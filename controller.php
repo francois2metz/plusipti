@@ -3,8 +3,8 @@
 /**
  * @package Toupti
  */
-class Controller {
-
+class Controller 
+{
     public $toupti = null;
     public $params = array();
 
@@ -13,7 +13,6 @@ class Controller {
         $this->toupti = Toupti::instance();
         $this->params = $this->toupti->get_params();
     }
-
 
     /**
      * Quick Alias to get a view.
@@ -46,14 +45,16 @@ class Controller {
     /**
      * quick alias to exit without any layout.
      */
-    public function exit_ajax() {
+    public function exit_ajax() 
+    {
         return $this->toupti->request->isXHR();
     }
 
     /**
      * quick alias to exit without any layout.
      */
-    public function request() {
+    public function request() 
+    {
         return $this->toupti->request;
     }
     /**
@@ -63,9 +64,8 @@ class Controller {
      * @param  boolean   $redirect_to         if we want to fall back on something in case referrer is not here
      * @return void
      */
-    public function redirect_to_referrer_or_exit_ajax($ajaxoutput="", $ajax_headers=array(),$redirect_to="/" )
+    public function redirect_to_referrer_or_exit_ajax($ajaxoutput="", $ajax_headers=array(),$redirect_to="/")
     {
-
         if($this->exit_ajax()) 
         {   
             foreach($ajax_headers as $ajax_header) { header($ajax_header); }
@@ -76,7 +76,6 @@ class Controller {
         {
             $this->toupti->redirect_to(isset($_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : $redirect_to);
         }
-
     }
 
     /**
@@ -89,5 +88,4 @@ class Controller {
     {
         return false;
     }
-
 }
