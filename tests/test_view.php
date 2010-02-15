@@ -1,11 +1,5 @@
 <?php
 
-require_once('simpletest/autorun.php');
-require_once('../toupti.php');
-require_once('../view.php');
-require_once('../view_libs/adaptor.php');
-require_once('../view_libs/smarty.php');
-
 class MockView extends ViewAdaptor
 {
     public static $var = array();

@@ -1,8 +1,5 @@
 <?php
 
-require_once('simpletest/autorun.php');
-require_once('../request.class.php');
-
 class TestRequest extends UnitTestCase
 {
     public function setUp()
