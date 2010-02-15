@@ -3,7 +3,7 @@
 /**
  * @package Toupti
  */
-class RequestMapper 
+class RequestMapper
 {
     public $method;
     public $accept;

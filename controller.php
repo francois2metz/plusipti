@@ -3,7 +3,7 @@
 /**
  * @package Toupti
  */
-class Controller 
+class Controller
 {
     public $toupti = null;
     public $params = array();
@@ -16,7 +16,7 @@ class Controller
 
     /**
      * Quick Alias to get a view.
-     * @param tpl a full formated path (relative to the app/view one) to the tpl file to use. If tpl is not provide or 
+     * @param tpl a full formated path (relative to the app/view one) to the tpl file to use. If tpl is not provide or
      * null, will use view/controller_name/controller_name.tpl. Without any path indication, file will be search in view/controller_name path/.
      * note that you don't need to provide the file extension.
      * @return View
@@ -45,7 +45,7 @@ class Controller
     /**
      * quick alias to exit without any layout.
      */
-    public function exit_ajax() 
+    public function exit_ajax()
     {
         return $this->toupti->request->isXHR();
     }
@@ -53,7 +53,7 @@ class Controller
     /**
      * quick alias to exit without any layout.
      */
-    public function request() 
+    public function request()
     {
         return $this->toupti->request;
     }
@@ -66,8 +66,8 @@ class Controller
      */
     public function redirect_to_referrer_or_exit_ajax($ajaxoutput="", $ajax_headers=array(),$redirect_to="/")
     {
-        if($this->exit_ajax()) 
-        {   
+        if($this->exit_ajax())
+        {
             foreach($ajax_headers as $ajax_header) { header($ajax_header); }
             echo $ajaxoutput instanceof View ? $ajaxoutput->fetch(): $ajaxoutput;
             exit;

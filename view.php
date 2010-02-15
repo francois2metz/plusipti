@@ -14,7 +14,7 @@ class View
 
     public $_js = array();
 
-    public static function conf($conf) 
+    public static function conf($conf)
     {
         self::$conf = $conf;
     }
@@ -28,7 +28,7 @@ class View
     public static function useLib($lib)
     {
         $class_name = ucfirst(strtolower($lib)).'View';
-        if (!class_exists($class_name)) 
+        if (!class_exists($class_name))
         {
             throw new TouptiException(sprintf("The %s view adaptor could not be loaded, class name %s", $lib, $class_name));
         }
@@ -39,7 +39,7 @@ class View
     {
         $view_class = self::$view_class;
         if (is_null($view_class))
-        { 
+        {
             throw new TouptiException("no adaptor set");
         }
         call_user_func_array(array($view_class, 'conf'), array(self::$conf));
@@ -49,7 +49,7 @@ class View
     public function __call($name, $arguments)
     {
         if (is_null($this->view_object) || !method_exists($this->view_object, $name))
-        { 
+        {
             throw new TouptiException(sprintf("Could not call %s either on View nor on a Lib", $name));
         }
         return call_user_func_array(array($this->view_object, $name), $arguments);

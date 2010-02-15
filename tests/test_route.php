@@ -72,9 +72,9 @@ class TestRoute extends UnitTestCase
     public function testRouteWith2Params()
     {
         $_SERVER['REQUEST_URI'] = '/test/not/possible';
-        $this->route->add('test/:chuck/:norris', array('controller' => 'test', 
-                                                       'action'     => 'foo', 
-                                                       ':chuck'     => '[a-z]+', 
+        $this->route->add('test/:chuck/:norris', array('controller' => 'test',
+                                                       'action'     => 'foo',
+                                                       ':chuck'     => '[a-z]+',
                                                        ':norris'    => '[a-z]+'));
         $this->assertRouteResult('test', 'foo', array('chuck'  => 'not',
                                                       'norris' => 'possible'));
@@ -83,9 +83,9 @@ class TestRoute extends UnitTestCase
     public function testRouteParamNotRestrict()
     {
         $_SERVER['REQUEST_URI'] = '/test/not/possible';
-        $this->route->add('test/:chuck/:norris', array('controller' => 'test', 
-                                                       'action'     => 'foo', 
-                                                       ':chuck'     => '(.*)', 
+        $this->route->add('test/:chuck/:norris', array('controller' => 'test',
+                                                       'action'     => 'foo',
+                                                       ':chuck'     => '(.*)',
                                                        ':norris'    => '[a-z]+'));
         $this->assertRouteResult('test', 'foo', array('chuck'  => 'not',
                                                       'norris' => 'not'));  // buggy

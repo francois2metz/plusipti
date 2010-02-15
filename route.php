@@ -2,7 +2,7 @@
 
 class RouteException extends Exception {}
 
-class HighwayToHeaven 
+class HighwayToHeaven
 {
 
     private $request = null;
@@ -38,7 +38,7 @@ class HighwayToHeaven
     public function add($route, Array $scheme = array())
     {
         /**
-         * if nothing defined, controller is the name of the route 
+         * if nothing defined, controller is the name of the route
          * FIXME, this can be dangerous if you give a strange route, should be checked and throw an exception
          */
         if(empty($scheme))
@@ -200,7 +200,7 @@ class HighwayToHeaven
         }
 
         if ( !array_key_exists('controller', $params) )
-        {            
+        {
             // This permits the value of a :named_match to be the routed action
             if ( $route['controller'][0] == ':' )
             {
@@ -221,5 +221,5 @@ class HighwayToHeaven
         }
         return $params;
     }
-    
+
 }

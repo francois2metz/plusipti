@@ -42,7 +42,7 @@ class TestRequest extends UnitTestCase
     {
         $this->assertHttpMethod('POST');
     }
-    
+
     public function testIsPut()
     {
         $this->assertHttpMethod('PUT');
@@ -108,7 +108,7 @@ class TestRequest extends UnitTestCase
     public function testGetOriginalUrl()
     {
         $this->setServerEnv('GET', '/test');
-        $request = new RequestMapper();  
+        $request = new RequestMapper();
         $this->assertEqual('/test', $request->original_uri);
     }
 }
