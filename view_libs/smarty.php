@@ -1,6 +1,6 @@
 <?php
 
-class SmartyView extends ViewAdaptor 
+class SmartyView extends ViewAdaptor
 {
 
     protected static $conf = array(
@@ -13,7 +13,7 @@ class SmartyView extends ViewAdaptor
 
     public $smarty = null;
 
-    public static function conf($conf) 
+    public static function conf($conf)
     {
         self::$conf = $conf;
     }
@@ -64,5 +64,4 @@ class SmartyView extends ViewAdaptor
         }
         return $this->smarty->fetch($this->tpl);
     }
-
 }

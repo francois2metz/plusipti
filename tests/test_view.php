@@ -36,7 +36,7 @@ class TestView extends UnitTestCase
     {
         View::reset();
     }
-    
+
     public function testCreateInstanceWithoutCallToUseLib()
     {
         $this->expectException(new TouptiException('no adaptor set'));
