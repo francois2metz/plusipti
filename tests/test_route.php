@@ -93,4 +93,20 @@ class TestRoute extends UnitTestCase
         $this->expectException(new Exception('Invalid route for path: /test'));
         $this->route->add('/test', array(''));
     }
+
+    public function testRouteWithParamsNoRegexp()
+    {
+        $_SERVER['REQUEST_URI'] = '/test/not/possible';
+        $this->route->add('test/:chuck/:norris', array('controller' => 'test', 'action'     => 'foo'));
+        $this->assertRouteResult('test', 'foo', array('chuck'  => 'not', 'norris' => 'possible'));
+    }
+
+    public function testRouteWithParamsNoRegexpButDeclared()
+    {
+        $_SERVER['REQUEST_URI'] = '/test/not/possible';
+        $this->route->add('test/:chuck/:norris', array('controller' => 'test',
+                                                       'action'     => 'foo',
+                                                       ':chuck', ':norris'));
+        $this->assertRouteResult('test', 'foo', array('chuck'  => 'not', 'norris' => 'possible'));
+    }
 }
