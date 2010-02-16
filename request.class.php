@@ -35,12 +35,13 @@ class RequestMapper
         if(function_exists('apache_request_headers'))
             return apache_request_headers();
         $ret = array();
-        foreach($_ENV as $key => $value)
+        foreach($_SERVER as $key => $value)
         {
             $matches = array();
             if(preg_match('/^HTTP_(.+)$/', $key, $matches))
             {
-                $ret[$matches[1]] = $value;
+                $key = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower($matches[1]))));
+                $ret[$key] = $value;
             }
         }
         return $ret;
