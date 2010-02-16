@@ -25,9 +25,25 @@ class RequestMapper
     {
         $this->method       = $_SERVER['REQUEST_METHOD'];
         $this->accept       = $this->parseAcceptHeaders(isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL);
-        $this->headers      = apache_request_headers();
+        $this->headers      = $this->getRequestHeaders();
         $this->original_uri = $_SERVER['REQUEST_URI'];
         $this->setRequestMethod();
+    }
+
+    public function getRequestHeaders()
+    {
+        if(function_exists('apache_request_headers'))
+            return apache_request_headers();
+        $ret = array();
+        foreach($_ENV as $key => $value)
+        {
+            $matches = array();
+            if(preg_match('/^HTTP_(.+)$/', $key, $matches))
+            {
+                $ret[$matches[1]] = $value;
+            }
+        }
+        return $ret;
     }
 
     public function __get($name)
@@ -82,6 +98,11 @@ class RequestMapper
             $m = "is".ucfirst(strtolower($rm));
             if($this->$m) return $rm;
         }
+    }
+
+    public function getHeader($header)
+    {
+        return isset($this->headers[$header]) ? $this->headers[$header] : NULL;
     }
 
     public function isXHR()
