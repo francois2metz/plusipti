@@ -30,10 +30,22 @@ class RequestMapper
         $this->setRequestMethod();
     }
 
-    public function getRequestHeaders()
+    protected function getRequestHeaders()
     {
-        if(function_exists('apache_request_headers'))
-            return apache_request_headers();
+        if (function_exists('apache_request_headers'))
+        {
+            return $this->getApacheRequestHeaders();
+        }
+        return $this->getFastCgiRequestHeaders();
+    }
+
+    protected function getApacheRequestHeaders()
+    {
+       return apache_request_headers();
+    }
+
+    protected function getFastCgiRequestHeaders()
+    {
         $ret = array();
         foreach($_SERVER as $key => $value)
         {
