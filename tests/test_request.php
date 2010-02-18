@@ -1,5 +1,28 @@
 <?php
 
+class MyRequestMapper extends RequestMapper
+{
+    protected $_apache;
+    protected $_headers = array();
+
+    public function __construct($apache, $headers = array())
+    {
+        $this->_apache = $apache;
+        $this->_headers = $headers;
+        
+        parent::__construct();
+    }
+
+    protected function getRequestHeaders()
+    {
+        if ($this->_apache)
+        {
+            return $this->_headers;
+        }
+        return $this->getFastCgiRequestHeaders();
+    }
+}
+
 class TestRequest extends UnitTestCase
 {
     public function setUp()
@@ -86,6 +109,29 @@ class TestRequest extends UnitTestCase
         $this->assertEqual('text/html', $request->accept[0]);
     }
 
+    public function testHeaderWithApache()
+    {
+        $this->setServerEnv('GET');
+        $request = new MyRequestMapper(true, array('User-Agent' => 'My User Agent'));
+        $this->assertEqual('My User Agent', $request->getHeader('User-Agent'));
+    }
+
+    public function testHeaderFastCgi()
+    {
+        $this->setServerEnv('GET');
+        $_SERVER['HTTP_USER_AGENT'] = 'My Funky User Agent';
+        $request = new MyRequestMapper(false);
+        $this->assertEqual('My Funky User Agent', $request->getHeader('User-Agent'));
+    }
+
+    public function testHeaderFastCgiWithAdditionalServer()
+    {
+        $this->setServerEnv('GET');
+        $_SERVER['MY_AGENT'] = 'My Funky User Agent2';
+        $request = new MyRequestMapper(false);
+        $this->assertNull( $request->getHeader('My-Agent'));
+    }
+
     public function testNotXhr()
     {
         $this->setServerEnv('GET');
@@ -93,13 +139,19 @@ class TestRequest extends UnitTestCase
         $this->assertFalse($request->isXHR());
     }
 
-    public function testIsXhr()
+    public function testIsXhrWithApache()
     {
         $this->setServerEnv('GET');
-        $request = new RequestMapper();
-        // need a way to mock http headers
-        //        $this->assertTrue($request->isXHR());
+        $request = new MyRequestMapper(true, array('X-Requested-With' => 'XMLHttpRequest'));
+        $this->assertTrue($request->isXHR());
+    }
 
+    public function testIsXhrWithFastCgi()
+    {
+        $this->setServerEnv('GET');
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $request = new MyRequestMapper(false);
+        $this->assertTrue($request->isXHR());
     }
 
     public function testGetOriginalUrl()
