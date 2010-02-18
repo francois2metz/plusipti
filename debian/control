@@ -1,0 +1,14 @@
+Source: php5-toupti
+Priority: optional
+Maintainer: François de Metz <fdemetz@af83.com>
+Build-Depends: debhelper (>= 7)
+Standards-Version: 3.8.3
+
+Package: php5-toupti
+Architecture: all
+Depends: ${misc:Depends}, libapache2-mod-php5 | php5-cgi | php5
+Recommends: apache2 | lighttpd | httpd
+Section: php
+Homepage: http://github.com/AF83/toupti
+Description: Small web framefork
+ Toupti is a small web framwork, with MVC Pattern.

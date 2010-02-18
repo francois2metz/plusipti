@@ -1,0 +1,20 @@
+This package was debianized by François de Metz <fdemetz@af83.com> on
+Thu, 18 Feb 2010 16:56:17 +0100
+
+It was downloaded from http://github.com/AF83/toupti
+
+Upstream Author(s):
+
+    Arnaud Berthomier <oz@cyprio.net>
+
+Copyright:
+
+        Toupti is copyright (c) 2009 Arnaud Berthomier
+        Toupti is copyright (c) 2009-2010 AF83
+
+License:
+
+    Toupti is under the MIT License
+
+The Debian packaging is (C) 2010, François de Metz <fdemetz@af83.com> and
+is licensed under the MIT License.

@@ -1,0 +1,8 @@
+toupti.php usr/share/php/toupti
+controller.php  usr/share/php/toupti
+request.class.php usr/share/php/toupti
+route.php usr/share/php/toupti
+view_libs usr/share/php/toupti
+view.php usr/share/php/toupti
+
+example usr/share/php/doc/toupti
