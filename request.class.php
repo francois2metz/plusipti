@@ -25,9 +25,26 @@ class RequestMapper
     {
         $this->method       = $_SERVER['REQUEST_METHOD'];
         $this->accept       = $this->parseAcceptHeaders(isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL);
-        $this->headers      = apache_request_headers();
+        $this->headers      = $this->getRequestHeaders();
         $this->original_uri = $_SERVER['REQUEST_URI'];
         $this->setRequestMethod();
+    }
+
+    public function getRequestHeaders()
+    {
+        if(function_exists('apache_request_headers'))
+            return apache_request_headers();
+        $ret = array();
+        foreach($_SERVER as $key => $value)
+        {
+            $matches = array();
+            if(preg_match('/^HTTP_(.+)$/', $key, $matches))
+            {
+                $key = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower($matches[1]))));
+                $ret[$key] = $value;
+            }
+        }
+        return $ret;
     }
 
     public function __get($name)
@@ -84,12 +101,18 @@ class RequestMapper
         }
     }
 
+    public function getHeader($header)
+    {
+        return isset($this->headers[$header]) ? $this->headers[$header] : NULL;
+    }
+
     public function isXHR()
     {
         return array_key_exists('X-Requested-With', $this->headers) ? $this->headers['X-Requested-With'] == 'XMLHttpRequest' : false;
     }
 
-    private function parseAcceptHeaders($accept_header, $default="text/html"){
+    private function parseAcceptHeaders($accept_header, $default="text/html")
+    {
         //@fixme: is formats complet ?
         $formats = array(
             'text/html' => 'html',
@@ -115,5 +138,4 @@ class RequestMapper
         if ($format && $formats[$format]) 	return array($format, $formats[$format]); //weird ie6 bug sometimes doesn't send headers so fighing notice here
 
     }
-
 }
