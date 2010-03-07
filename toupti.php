@@ -35,11 +35,6 @@ class TouptiException extends Exception {}
 class Toupti
 {
     /**
-     * Application views templates config.
-     */
-    public $template_path = 'template';
-
-    /**
      * Current config
      */
     public $conf = null;
@@ -69,29 +64,16 @@ class Toupti
      */
     private $route = null;
 
-    /**
-     * Internal template path
-     */
-    private $_template_path = null;
-
     private static $_instance = null;
 
     /**
      * Toupti constructor
+     * @param Array $conf
      */
     private function __construct($conf)
     {
-
-        // So we know where we are...
-        /**
-         * shouldn't we give this as an optionnal parameter ?
-         */
-        $this->app_root = dirname(__FILE__) .'/../..';
-
         $this->conf = $conf;
-
         $this->setup_request();
-
         // Read user routes, and set-up internal dispatcher
         $this->setup_route();
     }
@@ -107,11 +89,15 @@ class Toupti
         return self::$_instance;
     }
 
+    public static function destroy()
+    {
+        self::$_instance = null;
+    }
+
     public function get_params()
     {
         return $this->params;
     }
-
 
     /**
      * Dispatch browser query to the appropriate action.
@@ -136,20 +122,17 @@ class Toupti
             $controller = ucfirst($action)."Controller";
             return $this->call_action($controller, $method, $params);
         } else {
-            throw new TouptiException($_SERVER['REQUEST_URI'], 404);
+            throw new TouptiException('Error 404 '. $this->request->original_uri, 404);
         }
 
     }
 
     /**
-     * Call a user action:
-     *  - First, try to call any otherwised defined filter,
-     *  - Then, call the user action.
-     *  - Finally, call any post filter that is callable.
+     * Call a user action
      *
-     * @param  string   Name of the action to call
-     * @param  array    Request parameters
-     * @return mixed    User-defined action's return value
+     * @param  string  $controller_name Name of the controller to call
+     * @param  string  $method_name
+     * @param  Array   $params Request parameters
      */
     private function call_action($controller_name, $method_name, $params)
     {
@@ -167,10 +150,10 @@ class Toupti
                     throw new TouptiException('access_not_allowed', 403);
                 }
             } else {
-                throw new TouptiException('Route error '. $method_name, 404);
+                throw new TouptiException('Route error. Action '. $method_name  .' not exist in '. $controller_name . ' for '. $this->request->original_uri . '.', 404);
             }
         }
-        Logs::info('exit call_action without return');
+        throw new TouptiException('Route error. Controller '. $controller_name . ' not found for '. $this->request->original_uri . '.', 404);
     }
 
     /**
@@ -194,14 +177,15 @@ class Toupti
 
     private function setup_route()
     {
-        $routes_file = $this->app_root . '/conf/routes.php';
+        $routes_file = isset($this->conf['route_path']) ? $this->conf['route_path'] 
+            : dirname(__FILE__) . '/conf/routes.php';
         if (file_exists($routes_file))
         {
             include $routes_file;
         }
         else
         {
-            throw new Exception('No route defined. Please create '. $routes_file);
+            throw new TouptiException('No route defined. Please create '. $routes_file);
         }
         $this->route = HighwayToHeaven::instance();
         $this->route->setRequest($this->request);
