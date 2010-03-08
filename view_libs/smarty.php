@@ -1,8 +1,9 @@
 <?php
-
+/**
+ * @package Toupti
+ */
 class SmartyView extends ViewAdaptor
 {
-
     protected static $conf = array(
         'template_dir' => '',
         'compile_dir' => '',
@@ -11,7 +12,7 @@ class SmartyView extends ViewAdaptor
         'plugins_dir' => ''
     );
 
-    public $smarty = null;
+    protected $smarty = null;
 
     public static function conf($conf)
     {

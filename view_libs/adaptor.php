@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @package Toupti
+ */
 abstract class ViewAdaptor
 {
     private $notifs = array();
@@ -23,7 +25,7 @@ abstract class ViewAdaptor
     }
 
     /**
-     * @param ApiException or an array of them.
+     * @param Mixed $notify notification or an array of them.
      */
     public function notify($notify)
     {
