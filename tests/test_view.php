@@ -75,4 +75,22 @@ class TestView extends UnitTestCase
         $view->js(array('test.js'));
         $this->assertEqual(1, count($view->_js));
     }
+
+    public function testAddNotification()
+    {
+        View::useLib('Mock');
+        $view = new View();
+        $view->notify('test');
+        $this->assertEqual('test', array_pop($view->getNotifs()));
+        $this->assertEqual(1, count($view->getNotifs()));
+    }
+
+    public function testAddNotificationArray()
+    {
+        View::useLib('Mock');
+        $view = new View();
+        $view->notify(array('success', 'reload'));
+        $this->assertEqual('reload', array_pop($view->getNotifs()));
+        $this->assertEqual(2, count($view->getNotifs()));
+    }
 }

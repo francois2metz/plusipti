@@ -2,7 +2,7 @@
 
 abstract class ViewAdaptor
 {
-    public $_notifs = array();
+    private $notifs = array();
 
     abstract public static function conf($conf); 
 
@@ -19,7 +19,7 @@ abstract class ViewAdaptor
      */
     public function getNotifs()
     {
-        return $this->_notifs;
+        return $this->notifs;
     }
 
     /**
@@ -41,6 +41,6 @@ abstract class ViewAdaptor
     private function addNotify($notify)
     {
         if (!is_null($notify))
-            $this->_notifs[]= $notify;
+            $this->notifs []= $notify;
     }
 }
