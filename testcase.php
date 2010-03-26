@@ -9,6 +9,8 @@ abstract class TouptiTestCase extends UnitTestCase
 {
     private $toupticonf;
 
+    private $currenturl;
+
     final public function setUp()
     {
         Toupti::destroy();
@@ -34,6 +36,11 @@ abstract class TouptiTestCase extends UnitTestCase
 
     abstract function viewSetUp();
 
+    public function getUrl()
+    {
+        return $this->currenturl;
+    }
+
     public function get($url)
     {
         if ($offset = strpos($url, '?'))
@@ -48,6 +55,7 @@ abstract class TouptiTestCase extends UnitTestCase
         }
         $_SERVER['REQUEST_URI'] = $url;
         $_SERVER['REQUEST_METHOD'] = 'GET';
+        $this->currenturl = $url;
         $this->toupti = Toupti::instance($this->toupticonf);
         return $this->toupti->run();
     }
@@ -57,6 +65,7 @@ abstract class TouptiTestCase extends UnitTestCase
         $_SERVER['REQUEST_URI'] = $url;
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = $params;
+        $this->currenturl = $url;
         $this->toupti = Toupti::instance($this->toupticonf);
         return $this->toupti->run();
     }

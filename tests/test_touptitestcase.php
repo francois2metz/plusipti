@@ -19,6 +19,7 @@ class TestTouptiTestCase extends TouptiTestCase
         $view = $this->get('/?param=plip');
         $this->assertEqual($view->get('test') ,'plop');
         $this->assertEqual($view->get('param') ,'plip');
+        $this->assertEqual($this->getUrl(), '/?param=plip');
     }
 
     public function testGetWithMoreParam()
@@ -26,11 +27,13 @@ class TestTouptiTestCase extends TouptiTestCase
         $view = $this->get('/index?param=plip&param2=plop');
         $this->assertEqual($view->get('param') ,'plip');
         $this->assertEqual($view->get('param2') ,'plop');
+        $this->assertEqual($this->getUrl(), '/index?param=plip&param2=plop');
     }
 
     public function testPost()
     {
         $view = $this->post('/post', array('email' => 'test@example.net'));
         $this->assertEqual($view->get('email') ,'test@example.net');
+        $this->assertEqual($this->getUrl(), '/post');
     }
 }
