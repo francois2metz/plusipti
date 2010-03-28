@@ -29,4 +29,9 @@ class TestAppController extends Controller
         $view->assign('email', $this->params['email']);
         return $view;
     }
+
+    public function upload()
+    {
+
+    }
 }
