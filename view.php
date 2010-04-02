@@ -61,7 +61,7 @@ class View
      */
     public function js()
     {
-        $args = func_get_args();
+        $args = (func_num_args() == 1 && is_array(func_get_arg(0))) ? func_get_arg(0) : func_get_args();
         $this->_js = array_merge($this->_js, $args);
     }
 }
