@@ -3,6 +3,7 @@
 require_once('simpletest/autorun.php');
 
 require_once('../toupti.php');
+require_once('../testcase.php');
 require_once('../request.class.php');
 require_once('../route.php');
 require_once('../controller.php');
@@ -20,5 +21,6 @@ class TouptiTestSuite extends TestSuite
         $this->addFile($test_dir .'/test_route.php');
         $this->addFile($test_dir .'/test_view.php');
         $this->addFile($test_dir .'/test_toupti.php');
+        $this->addFile($test_dir .'/test_touptitestcase.php');
     }
 }

@@ -123,7 +123,8 @@ class RequestMapper
         return array_key_exists('X-Requested-With', $this->headers) ? $this->headers['X-Requested-With'] == 'XMLHttpRequest' : false;
     }
 
-    private function parseAcceptHeaders($accept_header, $default="text/html"){
+    private function parseAcceptHeaders($accept_header, $default="text/html")
+    {
         //@fixme: is formats complet ?
         $formats = array(
             'text/html' => 'html',
@@ -149,5 +150,4 @@ class RequestMapper
         if ($format && $formats[$format]) 	return array($format, $formats[$format]); //weird ie6 bug sometimes doesn't send headers so fighing notice here
 
     }
-
 }
