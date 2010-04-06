@@ -120,7 +120,12 @@ class RequestMapper
 
     public function isXHR()
     {
-        return array_key_exists('X-Requested-With', $this->headers) ? $this->headers['X-Requested-With'] == 'XMLHttpRequest' : false;
+        if (array_key_exists('X-Requested-With', $this->headers) && $this->headers['X-Requested-With'] == 'XMLHttpRequest')
+            return true;
+        // ie bug ?
+        elseif (array_key_exists('x-requested-with', $this->headers) && $this->headers['x-requested-with'] == 'XMLHttpRequest')
+            return true;
+        return false;
     }
 
     private function parseAcceptHeaders($accept_header, $default="text/html")
