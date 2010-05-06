@@ -111,20 +111,20 @@ class Toupti
     public function run()
     {
         // Find an action for the query, and set params accordingly.
-        list($action, $method, $params) = $this->route->find_route();
+        list($controller, $action, $params) = $this->route->find_route();
 
         // Update ourself
+        $this->controller = $controller;
         $this->action = $action;
-        $this->method = $method;
 
         // Merge route params with POST/GET values
         $params = array_merge($params, $_POST, $_GET); // FIXME Possible CSRF attacks here
         $this->params = $params;
 
         // Dispatch the routed action !
-        if (isset($action) && isset($method)) {
-            $controller = ucfirst($action)."Controller";
-            return $this->call_action($controller, $method, $params);
+        if (isset($controller) && isset($action)) {
+            $controller_class = ucfirst($controller)."Controller";
+            return $this->call_action($controller_class, $action, $params);
         } else {
             throw new TouptiException('Error 404 '. $this->request->original_uri, 404);
         }
