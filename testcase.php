@@ -111,7 +111,10 @@ abstract class TouptiTestCase extends UnitTestCase
         $file['size'] = filesize($uri);
         $file['type'] = mime_content_type($uri);
         $tmp = tempnam(sys_get_temp_dir(), basename($uri));
-        copy($uri, $tmp);
+        if (!copy($uri, $tmp))
+        {
+            throw new Exception('cannot copy '. $uri .' to '. $tmp);
+        }
         $file['tmp_name'] = $tmp;
         $file['error'] = UPLOAD_ERR_OK;
         return $file;
