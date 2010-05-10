@@ -33,6 +33,7 @@ class MockView extends ViewAdaptor
 
     public function fetch($tpl = null)
     {
+        return implode(array_keys(self::$var), ',');
     }
 }
 

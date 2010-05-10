@@ -54,14 +54,19 @@ class Toupti
     public $request = null;
 
     /**
+     * Response info
+     */
+    public $response = null;
+
+    /**
+     *
+     */
+    public $controller = null;
+
+    /**
      * The action we'll want to run...
      */
     public $action = null;
-
-    /**
-     * The methods chains to complete the action.
-     */
-    public $method = null;
 
     /**
      * Routing setup
@@ -80,6 +85,7 @@ class Toupti
         $this->setup_request();
         // Read user routes, and set-up internal dispatcher
         $this->setup_route();
+        $this->response = new TouptiResponse();
     }
 
     /**
