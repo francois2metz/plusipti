@@ -80,4 +80,11 @@ class TestTouptiTestCase extends TouptiTestCase
         $this->assertEqual($context['testapp/test.tpl']['foo'], 'bar');
         $this->assertEqual($context['testapp/chuck.tpl']['param'], '2');
     }
+
+    public function testAssertUnitTestCase()
+    {
+        $this->get('/multiple_template');
+        $this->assertNull(null);
+        $this->assertNotNull('df');
+    }
 }

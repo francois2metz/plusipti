@@ -199,6 +199,7 @@ class TouptiBrowser extends SimpleBrowser
  */
 abstract class TouptiTestCase extends WebTestCase
 {
+    protected $_testcase = null;
     public function createBrowser()
     {
         return new TouptiBrowser($this->touptiConf());
@@ -209,5 +210,21 @@ abstract class TouptiTestCase extends WebTestCase
     public function getTouptiResponse()
     {
         return $this->getBrowser()->getTouptiResponse();
+    }
+
+    protected function getTestCase()
+    {
+        if (is_null($this->_testcase))
+        {
+            $test = new UnitTestCase(get_class($this));
+            $test->_reporter = $this->_reporter;
+            $this->_testcase = $test;
+        }
+        return $this->_testcase;
+    }
+
+    public function __call($name, $arguments)
+    {
+        call_user_func_array(array($this->getTestCase(), $name), $arguments);
     }
 }
