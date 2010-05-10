@@ -25,7 +25,7 @@ class MocktestView extends ViewAdaptor
 
     public static function conf($conf)
     {
-       
+        call_user_func(array(self::$realview, 'conf'), $conf);
     }
 
     public function getContext()

@@ -7,7 +7,8 @@ class TestTouptiTestCase extends TouptiTestCase
     public function touptiConf()
     {
         return array('toupti' => array('route_path' => dirname(__FILE__) .'/testapp/routes.php'),
-                     'view'   => 'Mock'
+                     'view'   => 'Mock',
+                     'viewConf' => array()
                      );
     }
 
