@@ -5,7 +5,7 @@ require_once('simpletest/web_tester.php');
 
 require_once('../toupti.php');
 require_once('../testcase.php');
-require_once('../request.class.php');
+require_once('../request.php');
 require_once('../response.php');
 require_once('../route.php');
 require_once('../controller.php');
