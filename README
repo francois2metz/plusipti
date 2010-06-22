@@ -22,12 +22,13 @@ the following directory tree :
     my_new_app/
         public/
             .htaccess
-            app.php
-        lib/
-            toupti.php
-        templates/
-            a_view_file.php
-            another_view.php
+            index.php
+        libs/
+            toupti/
+        app/
+            views/
+            controllers/
+            models/
 
 
 And the following Apache vhost should do the trick :
@@ -55,23 +56,20 @@ The basics
 Toupti is trying to do the right thing -- most of the time; this
 does mean that we have to agree on what is the right thing to do.
 
-Toupti works from your existing PHP class, provided it extends the
-Toupti class, and then maps all of its public methods to URL paths. 
-
-Let's write the following app.php :
+Let's write the first controller :
 
     <?php
-    require '../lib/toupti.php';
+    require '../libs/toupti.php';
 
-    class App extends Toupti
+    class MyController extends Controller
     {
-        public function index()
+        public function adefault()
         {
-            $this->render("hello, world!");
+            return $this->getView('myapp.tpl');
         }
     }
 
-    $toupti = new App();
+    $toupti = Toutpti::instance();
     $toupti->run();
     ?>
 
