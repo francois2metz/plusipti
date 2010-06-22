@@ -204,8 +204,8 @@ abstract class TouptiTestCase extends WebTestCase
     public function createBrowser()
     {
         return new TouptiBrowser($this->touptiConf());
-        $this->viewSetUp();
     }
+
     abstract function touptiConf();
 
     public function getTouptiResponse()
