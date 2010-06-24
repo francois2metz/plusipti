@@ -60,24 +60,19 @@ class TouptiSocket
     {
         if ($this->first && $this->response instanceOf View)
         {
-            $this->first  = false;
+            $this->first = false;
             $headers = $this->toupti->response->get_headers();
-            $content = '';
+            $content = 'HTTP/1.1 200 OK'."\r\n";
             if (isset($headers['Status']))
             {
-                $content .= $headers['Status'] . "\r\n";
+                $content = $headers['Status'] . "\r\n";
                 unset($headers['Status']);
-            }
-            else
-            {
-                $content .= 'HTTP/1.1 200 OK'."\r\n";
             }
             foreach ($headers as $n => $v)
             {
-                $headers .= $n . ': '. $v . "\r\n";
+                $content .= $n . ': '. $v . "\r\n";
             }
             return $content ."\r\n" . $this->response->fetch();
-
         }
         return '';
     }

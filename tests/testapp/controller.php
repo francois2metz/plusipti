@@ -40,6 +40,7 @@ class TestAppController extends Controller
     public function error_500()
     {
         $this->toupti->response->set_status(500);
+        $this->toupti->response->set_header('X-FOO', 'bar');
         $view = $this->getView();
         $view->assign('foo', 'bar');
         return $view;

@@ -72,6 +72,7 @@ class TestTouptiTestCase extends TouptiTestCase
         $this->get('/500');
         $this->assertResponse(500);
         $this->assertResponse(array(500));
+        $this->assertHeader('X-FOO', 'bar');
     }
 
     public function testGetContext()
