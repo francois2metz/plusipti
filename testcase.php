@@ -58,7 +58,7 @@ class TouptiSocket
 
     public function read()
     {
-        if ($this->first && $this->response instanceOf View)
+        if ($this->first)
         {
             $this->first = false;
             $headers = $this->toupti->response->get_headers();
@@ -72,7 +72,7 @@ class TouptiSocket
             {
                 $content .= $n . ': '. $v . "\r\n";
             }
-            return $content ."\r\n" . $this->response->fetch();
+            return $content ."\r\n" . ($this->response instanceOf View ? $this->response->fetch() : $this->response);
         }
         return '';
     }

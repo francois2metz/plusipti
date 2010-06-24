@@ -89,4 +89,10 @@ class TestTouptiTestCase extends TouptiTestCase
         $this->assertNull(null);
         $this->assertNotNull('df');
     }
+
+    public function testControllerWithoutReturnView()
+    {
+        $this->get('/without_view');
+        $this->assertEqual($this->_browser->getContent(), 'foo');
+    }
 }

@@ -55,4 +55,9 @@ class TestAppController extends Controller
         $view2->assign('view', $view);
         return $view2;
     }
+
+    public function without_view()
+    {
+        return 'foo';
+    }
 }
