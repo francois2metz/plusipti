@@ -40,6 +40,14 @@ class TestTouptiTestCase extends TouptiTestCase
         $this->assertEqual($this->getUrl(), '/post');
     }
 
+    public function testPostWithGetParams()
+    {
+        $this->post('/post_with_get_params?foo=bar&chuck=norris', array());
+        $view = $this->getTouptiResponse();
+        $this->assertEqual($view->get('getparams'), 2);
+        $this->assertEqual($this->getUrl(), '/post_with_get_params?foo=bar&chuck=norris');
+    }
+
     public function testPostFile()
     {
         $filepath = dirname(__FILE__).'/data/test.pdf'; 

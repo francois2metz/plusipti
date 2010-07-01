@@ -18,20 +18,14 @@ class TouptiSocket
         $_POST    = array();
         $_REQUEST = array();
         $_FILES   = array();
-        if ($this->encoding->getMethod() != 'POST')
+        if ($encoding->getMethod() != 'POST')
         {
-            foreach ($encoding->getAll() as $pair)
-            {
-                $_GET[$pair->getKey()] = $pair->getValue();
-            }
+            $this->fillGet($encoding);
         }
         else
         {
-            foreach ($encoding->getAll() as $pair)
-            {
-                $_POST[$pair->getKey()] = $pair->getValue();
-            }
-            $this->handleFiles($encoding->getAll());
+            $this->fillPost($encoding);
+            $this->fillGet($url->_request);
         }
         $url = $this->url->asString();
         $_SERVER['REQUEST_URI'] = $url;
@@ -42,6 +36,23 @@ class TouptiSocket
         $this->toupti = Toupti::instance($this->toupticonf['toupti']);
         $this->response = $this->toupti->run();
         $this->first = true;
+    }
+
+    protected function fillGet($encoding)
+    {
+        foreach ($encoding->getAll() as $pair)
+        {
+            $_GET[$pair->getKey()] = $pair->getValue();
+        }
+    }
+
+    protected function fillPost($encoding)
+    {
+        foreach ($encoding->getAll() as $pair)
+        {
+            $_POST[$pair->getKey()] = $pair->getValue();
+        }
+        $this->handleFiles($encoding->getAll());
     }
 
     public function isError()

@@ -30,6 +30,13 @@ class TestAppController extends Controller
         return $view;
     }
 
+    public function post_with_get_params()
+    {
+        $view = $this->getView();
+        $view->assign('getparams', count($this->params));
+        return $view;
+    }
+
     public function upload()
     {
         $view = $this->getView();
